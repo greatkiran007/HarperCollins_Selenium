@@ -62,8 +62,7 @@ namespace Selenium_Specflow.PageObjects
 
 
         public void Login(string email, string password)
-        {
-           
+        {           
             emailField.EnterText(email);
             passwordField.EnterText(password);
             submitBtn.Click();
