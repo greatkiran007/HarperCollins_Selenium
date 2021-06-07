@@ -9,11 +9,12 @@ namespace Ledger_AutomationTesting.ExcelUtilities
 {
     class ExcelLib
     {
-        public string filename = ConfigurationManager.AppSettings["TestDataExcel"];
+        string BasePath = AppDomain.CurrentDomain.BaseDirectory.Replace(@"\bin\Debug\", "");
+        string filename = ConfigurationManager.AppSettings["TestDataExcel"];
         public void writeToExcel(string sheet, int row, int column, string val)
         {
             Excel.Application excel_app = new Excel.Application();
-            Excel.Workbook workbook = excel_app.Workbooks.Open(filename);
+            Excel.Workbook workbook = excel_app.Workbooks.Open(BasePath+ filename);
             excel_app.Visible = false;
             Excel.Worksheet sh = workbook.Sheets[sheet];
             sh.Cells[row, column] =val;
@@ -39,8 +40,9 @@ namespace Ledger_AutomationTesting.ExcelUtilities
 
         public string getValueFromExcel(string sheet, int row, int column)
         {
-            
-            string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source="+ ConfigurationManager.AppSettings["TestDataExcel"] + ";Extended Properties=Excel 8.0;";
+            string BasePath = AppDomain.CurrentDomain.BaseDirectory.Replace(@"\bin\Debug\", "");
+
+            string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source="+ BasePath+ ConfigurationManager.AppSettings["TestDataExcel"] + ";Extended Properties=Excel 8.0;";
             //string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\Ramesh\Desktop\Selenium_SpecFlow\Selenium_Specflow\TestData\TestData.xlsx;Extended Properties=Excel 8.0;";
             var dataTable = new DataTable();
             OleDbConnection con = new OleDbConnection(connectionString);
@@ -54,7 +56,7 @@ namespace Ledger_AutomationTesting.ExcelUtilities
         }
         public DataTable ExcelToDataTable(string sheet)
         {
-            string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + ConfigurationManager.AppSettings["TestDataExcel"] + ";Extended Properties=Excel 8.0;";
+            string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + BasePath+ ConfigurationManager.AppSettings["TestDataExcel"] + ";Extended Properties=Excel 8.0;";
             var dataTable = new DataTable();
             OleDbConnection con = new OleDbConnection(connectionString);
             string query = string.Format("SELECT * FROM ["+ sheet + "$]");

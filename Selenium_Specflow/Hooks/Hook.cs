@@ -191,13 +191,14 @@ namespace Selenium_Specflow.Hooks
         {
 
             var chrome = ConfigurationManager.AppSettings["Chrome"];
+            String BasePath = AppDomain.CurrentDomain.BaseDirectory.Replace(@"\bin\Debug\", "");
 
             switch (browserType)
             {
                 case BrowserType.Chrome:
                     var options = new ChromeOptions();
                     options.AddArgument("no-sandbox");
-                    ChromeDriverService service = ChromeDriverService.CreateDefaultService("webdriver.chrome.driver", chrome);
+                    ChromeDriverService service = ChromeDriverService.CreateDefaultService("webdriver.chrome.driver", BasePath+ chrome);
                     _driver = new ChromeDriver(service, options, TimeSpan.FromMinutes(3));
                     _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(Int16.Parse(ConfigurationManager.AppSettings["ImplicitWait"]));
                     _driver.Manage().Window.Maximize();
@@ -205,7 +206,7 @@ namespace Selenium_Specflow.Hooks
                     break;
                 case BrowserType.Firefox:
                     var driverDir = System.IO.Path.GetDirectoryName(ConfigurationManager.AppSettings["GeckoDir"]);
-                    FirefoxDriverService ffservice = FirefoxDriverService.CreateDefaultService(driverDir, ConfigurationManager.AppSettings["Firefox"]);
+                    FirefoxDriverService ffservice = FirefoxDriverService.CreateDefaultService(driverDir, BasePath+ConfigurationManager.AppSettings["Firefox"]);
                     ffservice.FirefoxBinaryPath = ConfigurationManager.AppSettings["FirefoxBinary"];
                     ffservice.HideCommandPromptWindow = true;
 
