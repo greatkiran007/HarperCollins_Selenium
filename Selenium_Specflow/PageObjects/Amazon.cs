@@ -44,7 +44,7 @@ namespace Selenium_Specflow.PageObjects
         IWebElement popupClose => _driver.FindElement(By.XPath("//button[@data-action='a-popover-close']"));
         IWebElement popupTitle => _driver.FindElement(By.XPath("//div[@id='ivTitle']"));
 
-        IWebElement itemPrice => _driver.FindElement(By.XPath("//span[@id='priceblock_dealprice']"));
+        IWebElement itemPrice => _driver.FindElement(By.XPath("//span[@id='priceblock_dealprice'] | //span[@id='priceblock_ourprice']"));
         IWebElement deliveryDates => _driver.FindElement(By.XPath("//div[@id='ddmDeliveryMessage']/b"));
         
         //TestDataId	SearchString	ItemName	Color	Size	Price	DeliveryDates

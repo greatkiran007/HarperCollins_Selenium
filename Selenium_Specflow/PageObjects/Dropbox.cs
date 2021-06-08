@@ -19,15 +19,15 @@ using System.IO;
 //using Selenium_Specflow.Steps;
 namespace Selenium_Specflow.PageObjects
 {
-    
+
     class Dropbox
     {
         private IWebDriver _driver;
         public Dropbox() => _driver = Hook.GetDriver();
         DataTable dt = new DataTable();
-        
+
         ExcelLib excel = new ExcelLib();
-        
+
         IWebElement emailField => _driver.FindElement(By.XPath("//input[@name='login_email']"));
         IWebElement passwordField => _driver.FindElement(By.XPath("//input[@name='login_password']"));
         IWebElement submitBtn => _driver.FindElement(By.XPath("//button[@type='submit']"));
@@ -38,7 +38,7 @@ namespace Selenium_Specflow.PageObjects
         IWebElement uploadFolder => _driver.FindElement(By.XPath("//div[contains(text(), 'Folder')]"));
 
         IWebElement uploadFile => _driver.FindElement(By.XPath("//div[contains(text(), 'Files')]"));
-        
+
 
         IWebElement confMsg => _driver.FindElement(By.XPath("//span[@class='dig-Snackbar-message ']"));
         IWebElement accntMenu => _driver.FindElement(By.XPath("//div[@aria-label='Account menu']"));
@@ -46,7 +46,8 @@ namespace Selenium_Specflow.PageObjects
 
 
 
-        public void Signout() {
+        public void Signout()
+        {
             accntMenu.Click();
             signOut.Click();
 
@@ -54,27 +55,27 @@ namespace Selenium_Specflow.PageObjects
 
 
         public void NavigateToHome(string url)
-        {            
-            
+        {
+
             _driver.Navigate().GoToUrl(url);
             Assert.IsTrue(_driver.Title.ToLower().Contains("dropbox"));
         }
 
 
         public void Login(string email, string password)
-        {           
+        {
             emailField.EnterText(email);
             passwordField.EnterText(password);
             submitBtn.Click();
             Thread.Sleep(10000);
-            Assert.IsTrue(_driver.Title.ToLower().Contains("files"));          
-            
+            Assert.IsTrue(_driver.Title.ToLower().Contains("files"));
+
         }
 
         public void NavigateToFolder(string folderPath)
         {
 
-            IWebElement folderLink =_driver.FindElement(By.XPath("//a[@href= '/home/" + folderPath + "']"));
+            IWebElement folderLink = _driver.FindElement(By.XPath("//a[@href= '/home/" + folderPath + "']"));
             folderLink.Click();
             Thread.Sleep(5000);
             Assert.IsTrue(_driver.Title.ToLower().Contains(folderPath.ToLower()));
@@ -101,7 +102,8 @@ namespace Selenium_Specflow.PageObjects
 
         public void UploadFolder(string folderPath)
         {
-            
+            By confMessge = By.XPath("//span[@class='dig-Snackbar-message ']");
+
             uploadBtn.Click();
             uploadFolder.Click();
             Thread.Sleep(3000);
@@ -111,22 +113,37 @@ namespace Selenium_Specflow.PageObjects
             SendKeys.SendWait("{Enter}");
             Thread.Sleep(5000);
             Console.WriteLine(_driver.WindowHandles.Count);
-
+            IWebElement confMsg = null;
             //SwitchTo Alert is not working here, hence using SendKeys here
             //AcceptAlert(_driver);
             //_driver.SwitchTo().DefaultContent();
-            
-            SendKeys.SendWait("{Tab}");
-            Thread.Sleep(2000);
-            SendKeys.SendWait("{Enter}");
-            Thread.Sleep(5000);
-            Assert.IsTrue(confMsg.Text.ToLower().Contains("uploaded"));
+            for (int i = 1; i < 10; i++)
+            {
+                try
+                {
+                    SendKeys.SendWait("{Tab}");
+                    Thread.Sleep(2000);
+                    SendKeys.SendWait("{Enter}");
+                    Thread.Sleep(5000);
+                    confMsg = FindElement(_driver, confMessge, 5);
+                    if (confMsg != null)
+                    {                       
+                        Assert.IsTrue(confMsg.Text.ToLower().Contains("uploaded"));
+                        break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Console.Read();
+                }
+            }
             Signout();
         }
+        public void AcceptAlert(IWebDriver dr)
+        {
 
-        public void AcceptAlert(IWebDriver dr) {
-
-            WebDriverWait wait = new WebDriverWait(dr, TimeSpan.FromSeconds(30));            
+            WebDriverWait wait = new WebDriverWait(dr, TimeSpan.FromSeconds(30));
             wait.Until(ExpectedConditions.AlertIsPresent()).Accept();
         }
         public void DismissAlert(IWebDriver dr)
@@ -140,8 +157,8 @@ namespace Selenium_Specflow.PageObjects
             IWebElement fileLink = _driver.FindElement(By.XPath("//span[contains(text(), '" + fileName + "')]"));
             //IWebElement fileLink = _driver.FindElement(By.PartialLinkText(fileName));
             //IWebElement fileLink = _driver.FindElement(By.XPath("//span[@class='dig-Checkbox']"));
-            
-            IWebElement folderLink = _driver.FindElement(By.XPath("//span[contains(text(), '"+ folderName + "')]"));
+
+            IWebElement folderLink = _driver.FindElement(By.XPath("//span[contains(text(), '" + folderName + "')]"));
 
 
 
@@ -170,7 +187,7 @@ namespace Selenium_Specflow.PageObjects
             //2. Usng Actions - try1 - not working
             var builder = new Actions(_driver);
             var dragAndDrop = builder.ClickAndHold(fileLink)
-                                        .MoveToElement(folderLink)                                        
+                                        .MoveToElement(folderLink)
                                         .Release(folderLink)
                                         .Build();
             dragAndDrop.Perform();
@@ -233,7 +250,7 @@ namespace Selenium_Specflow.PageObjects
 
             if (process != null)
                 mainWindowHandle = oPrs.Last().Handle.ToString("x");
-            
+
 
             return mainWindowHandle;
         }
@@ -244,9 +261,9 @@ namespace Selenium_Specflow.PageObjects
 
             string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmssffff");
 
-            string fileName = folderPath+ @"\"+ timeStamp + ".txt";
+            string fileName = folderPath + @"\" + timeStamp + ".txt";
 
-            
+
             FileInfo fi = new FileInfo(fileName);
 
             try
@@ -287,6 +304,15 @@ namespace Selenium_Specflow.PageObjects
 
         }
 
+        public static IWebElement FindElement( IWebDriver driver, By by, int timeoutInSeconds)
+        {
+            if (timeoutInSeconds > 0)
+            {
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
+                return wait.Until(drv => drv.FindElement(by));
+            }
+            return driver.FindElement(by);
+        }
 
 
     }
