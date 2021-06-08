@@ -12,7 +12,6 @@ using System.Text;
 using System.IO;
 using System.Threading;
 using TechTalk.SpecFlow;
-using System.IO;
 using Microsoft.Vbe.Interop;
 using System.Configuration;
 
